@@ -1,0 +1,145 @@
+\documentclass[14pt]{beamer}
+
+\beamertemplatenavigationsymbolsempty
+\usecolortheme[dark]{solarized}
+\setbeamertemplate{frametitle}[default][center]
+
+\AtBeginSection{%
+  \setbeamertemplate{headline}[default]
+  \setbeamertemplate{footline}[default]
+  \makeatletter\def\beamer@entrycode{\vspace*{-\headheight}}\makeatother
+  \frame{\sectionpage}
+  \setbeamertemplate{headline}[mine]
+  \setbeamertemplate{footline}[mine]
+}
+\AtBeginSubsection{%
+  \setbeamertemplate{headline}[default]
+  \setbeamertemplate{footline}[default]
+  \makeatletter\def\beamer@entrycode{\vspace*{-\headheight}}\makeatother
+  \frame{\subsectionpage}
+  \setbeamertemplate{headline}[mine]
+  \setbeamertemplate{footline}[mine]
+}
+
+\defbeamertemplate{section page}{mine}[1][]{%
+  \begin{centering}
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=8pt,center,#1]{part title}
+      \usebeamerfont{section title}\insertsection\par
+    \end{beamercolorbox}
+  \end{centering}
+}
+\setbeamertemplate{section page}[mine]
+\defbeamertemplate{subsection page}{mine}[1][]{%
+  \begin{centering}
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=8pt,center,#1]{default}
+      \usebeamerfont{section title}\insertsection\par
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,center,#1]{part title}
+      \usebeamerfont{subsection title}\insertsubsection\par
+    \end{beamercolorbox}
+  \end{centering}
+}
+\setbeamertemplate{subsection page}[mine]
+
+\defbeamertemplate{headline}{mine}[0]{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=3ex,center]{subsection title}
+      \insertsectionhead\quad\quad\insertsubsectionhead
+    \end{beamercolorbox}
+  }
+}
+\defbeamertemplate{footline}{mine}[0]{%
+  \leavevmode
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,center]{page number in head/foot}
+      \usebeamerfont{page number in head/foot}\insertframenumber\par
+    \end{beamercolorbox}
+  }
+}
+
+\addtobeamertemplate{block begin}{}{\setlength{\parskip}{60pt plus 1pt
+  minus 1pt}}
+
+\author{Huon Wilson}
+\title{\texttt{std::rand::random::<Talk>()}}
+\begin{document}
+\begin{frame}
+  \maketitle
+\end{frame}
+
+\section{Why?}
+\begin{frame}
+  Lots of uses for randomness:
+  \begin{itemize}
+  \item simulations: scientific
+  \item games: shuffling cards
+  \item security: secret keys
+  \end{itemize}
+
+  All want ``high quality'' random numbers.
+\end{frame}
+
+\section{Digital Randomness}
+\begin{frame}
+A sequence of bits, e.g.
+
+\only<1>{\begin{equation*}
+  11011110\,11111000\,01001010\,00111100\dots,
+\end{equation*}
+
+\phantom{.}
+
+\vspace{2.5pt}
+
+\phantom{.}}
+\only<2>{\begin{equation*}
+    \underbrace{11011110}_{\displaystyle 222}\underbrace{11111000}_{\displaystyle 248}
+\underbrace{01001010}_{\displaystyle 74}\underbrace{00111100}_{\displaystyle 60}\dots,
+  \end{equation*}
+Usually generated/consumed in chunks.}
+
+\end{frame}
+
+\subsection{Pseudo-randomness}
+\begin{frame}
+  Deterministic algorithms: random numbers follow some pattern.
+
+  \only<2>{\begin{itemize}
+  \item Linear Congruential Generator (LCG)
+  \item XorShift
+  \item ISAAC
+  \item ChaCha
+  \end{itemize}}
+\end{frame}
+
+\section{Quality}
+\begin{frame}
+  \begin{description}
+  \item[Perfect RNG:] every bit is equally likely to be $0$ or $1$, and is
+  independent of all other bits.
+  \item[Perfect pseudo-RNG:] very difficult to detect violations of the
+  above.
+  \end{description}
+\end{frame}
+
+\section{Rust}
+
+\subsection[Thread-safety]{Thread-safety (by default)}
+\begin{frame}
+
+\end{frame}
+
+\subsection{SIMD}
+\begin{frame}
+
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
