@@ -1,1 +1,9 @@
 /target
+*.aux
+*.gz
+*.log
+*.nav
+*.out
+*.pdf
+*.snm
+*.toc
