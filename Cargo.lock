@@ -1,4 +1,12 @@
 [root]
 name = "rand-dec14"
 version = "0.0.1"
+dependencies = [
+ "dsfmt-rs 0.0.1 (git+https://github.com/huonw/dsfmt-rs?ref=asm--)",
+]
+
+[[package]]
+name = "dsfmt-rs"
+version = "0.0.1"
+source = "git+https://github.com/huonw/dsfmt-rs?ref=asm--#2ff4f3e46d999e001ebb27da6029bf0e1bacb56d"
 

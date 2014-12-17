@@ -4,3 +4,7 @@ name = "rand-dec14"
 version = "0.0.1"
 
 authors = []
+
+[dependencies.dsfmt-rs]
+git = "https://github.com/huonw/dsfmt-rs"
+branch = "asm--"
