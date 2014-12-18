@@ -1,5 +1,8 @@
 \documentclass[14pt]{beamer}
 
+\usepackage{todonotes}
+\usepackage{minted}
+
 \beamertemplatenavigationsymbolsempty
 \usecolortheme[dark]{solarized}
 \setbeamertemplate{frametitle}[default][center]
@@ -68,18 +71,9 @@
 \begin{document}
 \begin{frame}
   \maketitle
-\end{frame}
-
-\section{Why?}
-\begin{frame}
-  Lots of uses for randomness:
-  \begin{itemize}
-  \item simulations: scientific
-  \item games: shuffling cards
-  \item security: secret keys
-  \end{itemize}
-
-  All want ``high quality'' random numbers.
+  \begin{center}
+    \url{http://huonw.github.io/rand-dec14/}
+  \end{center}
 \end{frame}
 
 \section{Digital Randomness}
@@ -103,27 +97,42 @@ Usually generated/consumed in chunks.}
 
 \end{frame}
 
-\subsection{Pseudo-randomness}
+\section{Why?}
 \begin{frame}
-  Deterministic algorithms: random numbers follow some pattern.
+  Lots of uses for randomness:
+  \begin{itemize}
+  \item simulations: scientific
+  \item games: shuffling cards
+  \item security: secret keys
+  \end{itemize}
 
-  \only<2>{\begin{itemize}
-  \item Linear Congruential Generator (LCG)
-  \item XorShift
-  \item ISAAC
-  \item ChaCha
-  \end{itemize}}
+  All want ``high quality'' random numbers.
 \end{frame}
 
-\section{Quality}
+\section{What is quality?}
 \begin{frame}
+  It depends!\\~\\
+
+  Usually:
+
+  \begin{itemize}
+  \item uniformity: every bit has $50\%$ chance of being $0$ or $1$
+  \item unpredictability: the value of a bit can't be guessed base
+    on the value of others
+  \end{itemize}
+\end{frame}
+
+\section{Determinism}
+\begin{frame}
+  Conventional computer RNGs follow patterns. \\~\\
+
   \begin{description}
-  \item[Perfect RNG:] every bit is equally likely to be $0$ or $1$, and is
-  independent of all other bits.
-  \item[Perfect pseudo-RNG:] very difficult to detect violations of the
-  above.
+  \item[Obvious] $0$, $1$, $2$, $3$, $4$, $\dotsc$, $7$, $0$, $1$,
+    $\dotsc$
+  \todo[inline]{more examples}
   \end{description}
 \end{frame}
+
 
 \section{Rust}
 
@@ -132,9 +141,61 @@ Usually generated/consumed in chunks.}
 
 \end{frame}
 
-\subsection{SIMD}
-\begin{frame}
+\subsection{SIMD: dSFMT}
+\begin{frame}[fragile]
+  \fontsize{8pt}{8pt}\selectfont
+  \begin{minted}{c}
+__m128i v, w, x, y, z;
 
+// ...
+x = a->si;
+z = _mm_slli_epi64(x, DSFMT_SL1);
+z = _mm_xor_si128(z, b->si);
+y = _mm_xor_si128(y, z);
+
+v = _mm_srli_epi64(y, DSFMT_SR);
+w = _mm_and_si128(y, sse2_param_mask.i128);
+v = _mm_xor_si128(v, x);
+v = _mm_xor_si128(v, w);
+r->si = v;
+u->si = y;
+  \end{minted}
+
+  \begin{flushright}
+    \url{http://www.math.sci.hiroshima-u.ac.jp/~%20m-mat/MT/SFMT/}\\~\\
+  \end{flushright}
+\pause
+
+  \begin{minted}{rust}
+// ...
+let y = (a << SSE2_SL) ^ b ^ y;
+let v = (y >> SSE2_SR) ^ (y & SSE2_PARAMS_MASK) ^ a;
+
+*r = v;
+*u = y;
+  \end{minted}
+
+  \begin{flushright}
+    \url{https://github.com/Grieverheart/dsfmt-rs}
+  \end{flushright}
+\end{frame}
+
+\subsection{Traits \& Type Inference}
+\begin{frame}[fragile]
+  \begin{minted}{rust}
+impl Rand for XorShiftRng
+impl Rand for ChaChaRng
+// ...
+  \end{minted}
+
+\pause
+Get an RNG with a random seed:
+
+  \begin{minted}{rust}
+use std::rand::{mod, XorShiftRng};
+
+let mut rng: XorShiftRng = rand::random();
+  \end{minted}
 \end{frame}
 
 \end{document}
@@ -142,4 +203,5 @@ Usually generated/consumed in chunks.}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: t
+%%% TeX-command-extra-options: "-shell-escape"
 %%% End:
