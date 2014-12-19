@@ -213,9 +213,9 @@ let v = (y >> SSE2_SR) ^ (y & SSE2_PARAMS_MASK) ^ a;
 \end{frame}
 
 \begin{frame}[fragile]
-  Creates essentially the same ASM. Benchmark:\\~\\
+  Creates essentially the same ASM. Benchmark:
 
-\fontsize{10pt}{10pt}\selectfont
+\fontsize{9pt}{9pt}\selectfont
   \begin{minted}{rust}
 let mut rng: dsfmt::DSFMTRng = SeedableRng::from_seed(12345u32);
 
@@ -227,6 +227,7 @@ for _ in range(0u32, 1_000_000_000) {
 println!("{}", sum)
   \end{minted}
 
+\fontsize{14pt}{14pt}\selectfont
 \begin{verbatim}
 C
 500014293.513722
