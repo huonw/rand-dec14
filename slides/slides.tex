@@ -3,6 +3,7 @@
 \usepackage{todonotes}
 \usepackage{minted}
 \usepackage{fontawesome}
+\usetikzlibrary{arrows.meta}
 
 \newcommand{\exturl}[1]{\exthref{#1}{#1}}
 \newcommand{\exthref}[2]{\href{#1}{#2\ \footnotesize\faExternalLink}}
@@ -128,11 +129,38 @@ Usually generated/consumed in chunks.}
 
 \section{How can a deterministic machine be random?}
 \begin{frame}
-  Conventional computer RNGs follow patterns. \\~\\
+  Conventional computer RNGs follow patterns.
+  \begin{center}
+  \begin{tikzpicture}
+    \node (init) at (-3, 0) {initial seed};
+    \node[draw] (State) at (0, 0) {\texttt{state}$_0$};
+    \node[draw] (One) at (0, -2) {\texttt{state}$_1$};
+    \node[draw] (Two) at (0, -4) {\texttt{state}$_2$};
+    \node (dots) at (0, -5) {\dots};
+    \node (Num1) at (3, -1) {random number};
+    \node (Num2) at (3, -3) {random number};
 
-  Use a key to initialise internal state
+    \draw[->] (init) -- (State);
+    \draw[->] (State) -- (One) node[midway, left] {update};
+    \draw[->] (One) -- (Two) node[midway, left] {update};
+    \draw[->] (Two) -- (dots);
+    \draw[->] (0, -1) -- (Num1);
+    \draw[->] (0, -3) -- (Num2);
+  \end{tikzpicture}
+  \end{center}
+
+  The seed controls \textit{which} pattern.
 \end{frame}
 
+\begin{frame}
+  Compute the seed (or state), and you know the full stream. \\~\\
+
+  RNGs for cryptography need to ensure the seed/state is hard to
+  compute. (Or be true random number generators, e.g.~measure nuclear
+  decay.) \\~\\
+
+  Bad: XorShift. Good: ChaCha.
+\end{frame}
 
 \section{Rust}
 
@@ -167,8 +195,8 @@ u->si = y;
   \begin{flushright}
     \exthref{http://www.math.sci.hiroshima-u.ac.jp/~\%20m-mat/MT/SFMT/}{http://www.math.sci.hiroshima-u.ac.jp/\textasciitilde\ m-mat/MT/SFMT/}\\~\\
   \end{flushright}
-\pause
 
+\pause
   \begin{minted}{rust}
 // ...
 let y = (a << SSE2_SL) ^ b ^ y;
@@ -181,6 +209,32 @@ let v = (y >> SSE2_SR) ^ (y & SSE2_PARAMS_MASK) ^ a;
   \begin{flushright}
     \exturl{https://github.com/Grieverheart/dsfmt-rs}
   \end{flushright}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  Creates essentially the same ASM. Benchmark:\\~\\
+
+\fontsize{10pt}{10pt}\selectfont
+  \begin{minted}{rust}
+let mut rng: dsfmt::DSFMTRng = SeedableRng::from_seed(12345u32);
+
+let mut sum = 0_f64;
+for _ in range(0u32, 1_000_000_000) {
+    sum += rng.gen()
+}
+
+println!("{}", sum)
+  \end{minted}
+
+\begin{verbatim}
+C
+500014293.513722
+User time: 1.86s
+Rust
+500014293.513722
+User time: 1.93s
+\end{verbatim}
 \end{frame}
 
 \subsection{Traits}
@@ -216,6 +270,23 @@ let x: rand::XorShiftRng = rand::random();
 let y: rand::ChaChaRng = rand::random();
   \end{minted}
 \end{frame}
+
+\subsection{Community!}
+
+\begin{frame}
+  E.g.
+
+  \begin{itemize}
+  \item Careful analysis of documentation/use of
+    \texttt{/dev/[u]random}
+    \item Implement Bernstein's ChaCha RNG
+      (\exturl{http://cr.yp.to/chacha.html}, sneves: \exthref{https://github.com/rust-lang/rust/pull/17387}{\#17387})
+  \item Update \texttt{std::rand} to use the new, better
+    \texttt{getrandom(2)} syscall on Linux, when available
+    (strcat and klutzy: \exthref{https://github.com/rust-lang/rust/pull/18664}{\#18664})
+  \end{itemize}
+\end{frame}
+
 \section{Questions?}
 \end{document}
 
