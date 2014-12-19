@@ -2,6 +2,10 @@
 
 \usepackage{todonotes}
 \usepackage{minted}
+\usepackage{fontawesome}
+
+\newcommand{\exturl}[1]{\exthref{#1}{#1}}
+\newcommand{\exthref}[2]{\href{#1}{#2\ \footnotesize\faExternalLink}}
 
 \beamertemplatenavigationsymbolsempty
 \usecolortheme[dark]{solarized}
@@ -72,7 +76,7 @@
 \begin{frame}
   \maketitle
   \begin{center}
-    \url{http://huonw.github.io/rand-dec14/}
+    \exturl{http://huonw.github.io/rand-dec14}
   \end{center}
 \end{frame}
 
@@ -101,9 +105,9 @@ Usually generated/consumed in chunks.}
 \begin{frame}
   Lots of uses for randomness:
   \begin{itemize}
-  \item simulations: scientific
-  \item games: shuffling cards
-  \item security: secret keys
+  \item simulations: scientific, testing
+  \item games: shuffling cards, collecting loot
+  \item security: keys, session IDs
   \end{itemize}
 
   All want ``high quality'' random numbers.
@@ -122,15 +126,11 @@ Usually generated/consumed in chunks.}
   \end{itemize}
 \end{frame}
 
-\section{Determinism}
+\section{How can a deterministic machine be random?}
 \begin{frame}
   Conventional computer RNGs follow patterns. \\~\\
 
-  \begin{description}
-  \item[Obvious] $0$, $1$, $2$, $3$, $4$, $\dotsc$, $7$, $0$, $1$,
-    $\dotsc$
-  \todo[inline]{more examples}
-  \end{description}
+  Use a key to initialise internal state
 \end{frame}
 
 
@@ -138,7 +138,10 @@ Usually generated/consumed in chunks.}
 
 \subsection[Thread-safety]{Thread-safety (by default)}
 \begin{frame}
+  Often a pervasive use of a single global RNG\@.
+  Languages like C, R, Julia (recently improved in e.g. \exthref{https://github.com/JuliaLang/julia/pull/8832}{JuliaLang/julia\#8832}).\\~\\
 
+  Automatically guaranteed this isn't a problem in Rust!
 \end{frame}
 
 \subsection{SIMD: dSFMT}
@@ -162,7 +165,7 @@ u->si = y;
   \end{minted}
 
   \begin{flushright}
-    \url{http://www.math.sci.hiroshima-u.ac.jp/~%20m-mat/MT/SFMT/}\\~\\
+    \exthref{http://www.math.sci.hiroshima-u.ac.jp/~\%20m-mat/MT/SFMT/}{http://www.math.sci.hiroshima-u.ac.jp/\textasciitilde\ m-mat/MT/SFMT/}\\~\\
   \end{flushright}
 \pause
 
@@ -176,11 +179,27 @@ let v = (y >> SSE2_SR) ^ (y & SSE2_PARAMS_MASK) ^ a;
   \end{minted}
 
   \begin{flushright}
-    \url{https://github.com/Grieverheart/dsfmt-rs}
+    \exturl{https://github.com/Grieverheart/dsfmt-rs}
   \end{flushright}
 \end{frame}
 
-\subsection{Traits \& Type Inference}
+\subsection{Traits}
+\begin{frame}[fragile]
+  \begin{minted}{rust}
+impl Rand for u8
+impl Rand for u16
+// ...
+  \end{minted}
+
+Get an number with a random value:
+
+  \begin{minted}{rust}
+use std::rand;
+
+let x: u8 = rand::random();
+let y: u16 = rand::random();
+  \end{minted}
+\end{frame}
 \begin{frame}[fragile]
   \begin{minted}{rust}
 impl Rand for XorShiftRng
@@ -188,16 +207,16 @@ impl Rand for ChaChaRng
 // ...
   \end{minted}
 
-\pause
 Get an RNG with a random seed:
 
   \begin{minted}{rust}
-use std::rand::{mod, XorShiftRng};
+use std::rand;
 
-let mut rng: XorShiftRng = rand::random();
+let x: rand::XorShiftRng = rand::random();
+let y: rand::ChaChaRng = rand::random();
   \end{minted}
 \end{frame}
-
+\section{Questions?}
 \end{document}
 
 %%% Local Variables:
